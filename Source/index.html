@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8'>
+		<title>Assignment 5 - LSTM Visual Analysis</title>
+		<script type='text/javascript' src='../d3.js'></script>
+	</head>
+	<body>
+	<script type='text/javascript' src='project.js'></script>
+	<script type='text/javascript'>
+		d3.json('../Data/EMU_Processed/face_keypoints_2d.json')
+		  .then(function(data)  {
+			  face_data = data;
+			  plot_it();
+		  })
+	</script>
+	</body>
+</html>
