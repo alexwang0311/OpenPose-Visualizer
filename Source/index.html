@@ -6,12 +6,28 @@
 		<script type='text/javascript' src='../d3.js'></script>
 	</head>
 	<body>
+	<!-- Initialize a select button -->
+	<select id='selectButtonPose'></select>
+	<select id='selectButtonRightHand'></select>
+	<select id='selectButtonLeftHand'></select>
 	<script type='text/javascript' src='project.js'></script>
 	<script type='text/javascript'>
 		d3.json('../Data/EMU_Processed/face_keypoints_2d.json')
-		  .then(function(data)  {
-			  face_data = data;
-			  plot_it();
+		  .then(function(data1){
+		  	d3.json('../Data/EMU_Processed/hand_left_keypoints_2d.json')
+		  	  .then(function(data2){
+		  	  	d3.json('../Data/EMU_Processed/hand_right_keypoints_2d.json')
+		  	  	  .then(function(data3){
+		  	  	  	d3.json('../Data/EMU_Processed/pose_keypoints_2d.json')	
+		  	  	  	  .then(function(data4){
+		  	  	  	  	face_data = data1;
+		  	  	  	  	hand_left_data = data2;
+		  	  	  	  	hand_right_data = data3;
+		  	  	  	  	pose_data = data4;
+		  	  	  	  	plot_it();
+		  	  	  	  })
+		  	  	  })
+		  	  })
 		  })
 	</script>
 	</body>
