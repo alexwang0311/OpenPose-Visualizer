@@ -1,0 +1,12 @@
+select{
+	background-color: #222222;
+	color: white;
+	text-indent: 10px;
+	font-size: 12px;
+	font-family: courier;
+	border: none;
+}
+
+text{
+	font-family: courier;
+}

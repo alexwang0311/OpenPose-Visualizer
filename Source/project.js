@@ -140,7 +140,7 @@ function setup_vis(){
 		var poseKeypoint = d3.select(this).property('value')
 		//console.log(poseKeypoint)
 		var threshold = thresholdScale(d3.select('#threshold').attr('y1'))
-		console.log(threshold)
+		//console.log(threshold)
 		setup_pose(poseKeypoint, threshold)
 	})
 
