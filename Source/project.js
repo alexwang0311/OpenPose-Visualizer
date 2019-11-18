@@ -4,10 +4,6 @@ var left_pad = 100, right_pad = 25, y_pad = 40
 var width = width-(left_pad+right_pad), height = height-2*y_pad;
 var filter_height = 200
 
-var FaceKeypoint = {
-
-}
-
 var POSEKEYPOINT = {
 	NOSE: 0,
 	NECK: 1,
@@ -98,16 +94,6 @@ function plot_it()  {
 		.attr('transform', 'translate('+left_pad+','+ (2 * (height + 100))+')')
 		.attr('id', 'lefthand')
 
-	d3.select('svg')
-		.append('g')
-		.attr('transform', 'translate('+left_pad+','+ (3 * (height + 100)) +')')
-		.attr('id', 'face')
-
-	// group that will contain y axis for face plot
-	d3.select('#face').append('g').attr('id', 'yaxis')
-	// group that will contain x axis for face plot
-	d3.select('#face').append('g').attr('id', 'xaxis')
-
 	// group that will contain y axis for left hand plot
 	d3.select('#lefthand').append('g').attr('id', 'yaxis')
 	// group that will contain x axis for right hand plot
@@ -132,75 +118,36 @@ function plot_it()  {
 
 function setup_vis(){
 	setup_buttons();
+	setup_pose(POSEKEYPOINT.NOSE, 0)
+	setup_righthand(HANDKEYPOINT.PALM, 0)
+	setup_lefthand(HANDKEYPOINT.PALM, 0)
 
 	d3.select('#selectButtonLeftHand').on('change', function(d){
 		var lefthandKeypoint = d3.select(this).property('value')
-		console.log(lefthandKeypoint)
-		setup_lefthand(lefthandKeypoint)
+		//console.log(lefthandKeypoint)
+		var threshold = thresholdScale(d3.select('#threshold').attr('y1'))
+		setup_lefthand(lefthandKeypoint, threshold)
 	})
 
 	d3.select('#selectButtonRightHand').on('change', function(d){
 		var righthandKeypoint = d3.select(this).property('value')
-		console.log(righthandKeypoint)
-		setup_righthand(righthandKeypoint)
+		//console.log(righthandKeypoint)
+		var threshold = thresholdScale(d3.select('#threshold').attr('y1'))
+		setup_righthand(righthandKeypoint, threshold)
 	})
 
 	d3.select('#selectButtonPose').on('change', function(d){
 		var poseKeypoint = d3.select(this).property('value')
-		console.log(poseKeypoint)
-		setup_pose(poseKeypoint)
+		//console.log(poseKeypoint)
+		var threshold = thresholdScale(d3.select('#threshold').attr('y1'))
+		console.log(threshold)
+		setup_pose(poseKeypoint, threshold)
 	})
 
 	filter_data()
 }
 
-function setup_face(faceKeypoint){
-	// xScale
-	var xScale = d3.scalePoint()
-					.domain(face_data.map(function(e, index){return index}))
-					.range([0, width])
-
-	var step = 100
-	var xAxis = d3.axisBottom(xScale)
-					.tickValues(d3.range(0, face_data.length, step))
-
-	// yScale and yAxis for face plot
-	var max = d3.max(face_data, d => d[3 * faceKeypoint])
-	var min = d3.min(face_data, d => d[3 * faceKeypoint])
-
-	var face_yScale = d3.scaleLinear()
-					.domain([min, max])
-					.range([height, 0])
-
-	var face_yAxis = d3.axisLeft(face_yScale)
-
-	// Create the face plot
-	d3.select('#face')
-		.selectAll('.face_plot')
-		.data(face_data)
-		.enter()
-		.append('circle')
-		.attr('cx', function(d, index){return xScale(index)})
-		.attr('cy', function(d, index){
-			if(d.length == 0){
-				//console.log('Index: ', index, ' has no data')
-				return height
-			}
-			else{
-				return face_yScale(d[3 * faceKeypoint])
-			}
-		})
-		.attr('r', 1)
-
-	d3.select('#face').select('#xaxis')
-		.call(xAxis)
-		.attr('transform', 'translate(0,' + height + ')')
-
-	d3.select('#face').select('#yaxis')
-		.call(face_yAxis)
-}
-
-function setup_pose(poseKeypoint){
+function setup_pose(poseKeypoint, threshold){
 	var xScale = d3.scalePoint()
 					.domain(face_data.map(function(e, index){return index}))
 					.range([0, width])
@@ -210,8 +157,14 @@ function setup_pose(poseKeypoint){
 					.tickValues(d3.range(0, face_data.length, step))
 
 	// yScale and yAxis for pose plot
-	var max = d3.max(pose_data, d => d[3 * poseKeypoint])
-	var min = d3.min(pose_data, d => d[3 * poseKeypoint])
+	var new_pose_data = pose_data.filter(function(d){
+		var c1 = d[3 * poseKeypoint + 1]
+		var c2 = d[3 * poseKeypoint + 2]
+		return c1 >= threshold && c2 >= threshold
+	})
+
+	var max = d3.max(new_pose_data, d => d[3 * poseKeypoint])
+	var min = d3.min(new_pose_data, d => d[3 * poseKeypoint])
 
 	var pose_yScale = d3.scaleLinear()
 					.domain([min, max])
@@ -233,7 +186,7 @@ function setup_pose(poseKeypoint){
 					.transition()
 					.duration(800)
 					.attr('cy', function(d, index){
-						if(d.length == 0){
+						if(d.length == 0 || d[3 * poseKeypoint + 1] < threshold || d[3 * poseKeypoint + 2] < threshold){
 							//console.log('Index: ', index, ' has no data')
 							return height
 						}
@@ -252,18 +205,26 @@ function setup_pose(poseKeypoint){
 
 }
 
-function setup_righthand(righthandKeypoint){
+function setup_righthand(righthandKeypoint, threshold){
 	var xScale = d3.scalePoint()
 					.domain(face_data.map(function(e, index){return index}))
 					.range([0, width])
 
 	var step = 100
 	var xAxis = d3.axisBottom(xScale)
-					.tickValues(d3.range(0, face_data.length, step))
+					.tickValues(d3.range(0, hand_right_data.length, step))
 
 	// yScale and yAxis for right hand plot
-	var max = d3.max(hand_right_data, d => d[3 * righthandKeypoint])
-	var min = d3.min(hand_right_data, d => d[3 * righthandKeypoint])
+	var new_hand_right_data = hand_right_data.filter(function(d){
+		var c1 = d[3 * righthandKeypoint + 1]
+		var c2 = d[3 * righthandKeypoint + 2]
+		return c1 >= threshold && c2 >= threshold
+	})
+
+	var max = d3.max(new_hand_right_data, d => d[3 * righthandKeypoint])
+	var min = d3.min(new_hand_right_data, d => d[3 * righthandKeypoint])
+
+	//console.log(max, min)
 
 	var hand_right_yScale = d3.scaleLinear()
 					.domain([min, max])
@@ -285,7 +246,7 @@ function setup_righthand(righthandKeypoint){
 						.transition()
 						.duration(800)
 						.attr('cy', function(d, index){
-							if(d.length == 0){
+							if(d.length == 0 || d[3 * righthandKeypoint + 1] < threshold || d[3 * righthandKeypoint + 2] < threshold){
 								//console.log('Index: ', index, ' has no data')
 								return height
 							}
@@ -303,7 +264,7 @@ function setup_righthand(righthandKeypoint){
 		.call(hand_right_yAxis)
 }
 
-function setup_lefthand(lefthandKeypoint){
+function setup_lefthand(lefthandKeypoint, threshold){
 	var xScale = d3.scalePoint()
 					.domain(face_data.map(function(e, index){return index}))
 					.range([0, width])
@@ -312,8 +273,14 @@ function setup_lefthand(lefthandKeypoint){
 	var xAxis = d3.axisBottom(xScale)
 					.tickValues(d3.range(0, face_data.length, step))
 
-	var max = d3.max(hand_left_data, d => d[3 * lefthandKeypoint])
-	var min = d3.min(hand_left_data, d => d[3 * lefthandKeypoint])
+	var new_hand_left_data = hand_left_data.filter(function(d){
+		var c1 = d[3 * lefthandKeypoint + 1]
+		var c2 = d[3 * lefthandKeypoint + 2]
+		return c1 >= threshold && c2 >= threshold
+	})
+
+	var max = d3.max(new_hand_left_data, d => d[3 * lefthandKeypoint])
+	var min = d3.min(new_hand_left_data, d => d[3 * lefthandKeypoint])
 
 	var hand_left_yScale = d3.scaleLinear()
 							.domain([min, max])
@@ -336,7 +303,7 @@ function setup_lefthand(lefthandKeypoint){
 						.transition()
 						.duration(800)
 						.attr('cy', function(d, index){
-							if(d.length == 0){
+							if(d.length == 0 || d[3 * lefthandKeypoint + 1] < threshold || d[3 * lefthandKeypoint + 2] < threshold){
 								//console.log('Index: ', index, ' has no data')
 								return height
 							}
@@ -390,55 +357,33 @@ function setup_buttons(){
 		.attr('value', function(d){return POSEKEYPOINT[d]})
 }
 
-function filter_data(){
-	var thresholdScale = d3.scaleLinear()
+var thresholdScale = d3.scaleLinear()
 							.domain([0, filter_height])
 							.range([1, 0])
 
-	function check(){
+
+function filter_data(){
+	function update_plots(){
 		var threshold = thresholdScale(d3.select('#threshold').attr('y1'))
-		var pose_plot = d3.selectAll('.pose_plot')
-		var left_hand_plot = d3.selectAll('.left_hand_plot')
-		var right_hand_plot = d3.selectAll('.right_hand_plot')
 		var poseKeypoint = d3.select('#selectButtonPose').property('value')
-		var lefthandKeypoint = d3.select('#selectButtonLeftHand').property('value')
 		var righthandKeypoint = d3.select('#selectButtonRightHand').property('value')
-		pose_plot.attr('opacity', 1)
-		left_hand_plot.attr('opacity', 1)
-		right_hand_plot.attr('opacity', 1)
-
-		pose_plot.filter(function(d){
-			var c1 = d3.select(this).data()[0][3 * poseKeypoint + 1]
-			var c2 = d3.select(this).data()[0][3 * poseKeypoint + 2]
-			//console.log(c1, c2)
-			return c1 < threshold || c2 < threshold
-		}).attr('opacity', 0)
-
-		left_hand_plot.filter(function(d){
-			var c1 = d3.select(this).data()[0][3 * lefthandKeypoint + 1]
-			var c2 = d3.select(this).data()[0][3 * lefthandKeypoint + 2]
-			//console.log(c1, c2)
-			return c1 < threshold || c2 < threshold
-		}).attr('opacity', 0)
-
-		right_hand_plot.filter(function(d){
-			var c1 = d3.select(this).data()[0][3 * righthandKeypoint + 1]
-			var c2 = d3.select(this).data()[0][3 * righthandKeypoint + 2]
-			//console.log(c1, c2)
-			return c1 < threshold || c2 < threshold
-		}).attr('opacity', 0)
+		var lefthandKeypoint = d3.select('#selectButtonLeftHand').property('value')
+		//console.log(poseKeypoint, righthandKeypoint, lefthandKeypoint)
+		setup_pose(poseKeypoint, threshold)
+		setup_righthand(righthandKeypoint, threshold)
+		setup_lefthand(lefthandKeypoint, threshold)
 	}
+
 
 	function dragged() {
 	    var y = d3.mouse(this)[1]
 	    d3.select(this)
 	    	.attr('y1', y <= filter_height ? (y >= 0 ? y : 0) : filter_height)
 	    	.attr('y2', y <= filter_height ? (y >= 0 ? y : 0) : filter_height)
-
-	    check()
 	}
 	
 	var drag = d3.drag().on('drag', dragged)
+						.on('end', update_plots)
 
 	d3.select('#threshold').call(drag)
 }
