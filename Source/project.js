@@ -196,6 +196,19 @@ function setup_pose(poseKeypoint, threshold){
 					})
 					.attr('r', 1)
 
+	poseSelection.filter(function(d){
+						var c1 = d[3 * poseKeypoint + 1]
+						var c2 = d[3 * poseKeypoint + 2]
+						return c1 < threshold || c2 < threshold
+					})
+					.attr('opacity', 0)
+	poseSelection.filter(function(d){
+		var c1 = d[3 * poseKeypoint + 1]
+		var c2 = d[3 * poseKeypoint + 2]
+		return c1 >= threshold && c2 >= threshold
+	}).attr('opacity', 1)
+
+
 	d3.select('#pose').select('#xaxis')
     	.call(xAxis)
     	.attr('transform', 'translate(0,' + height + ')')
@@ -256,6 +269,18 @@ function setup_righthand(righthandKeypoint, threshold){
 						})
 						.attr('r', 1)
 
+	righthandSelection.filter(function(d){
+						var c1 = d[3 * righthandSelection + 1]
+						var c2 = d[3 * righthandSelection + 2]
+						return c1 < threshold || c2 < threshold
+					})
+					.attr('opacity', 0)
+	righthandSelection.filter(function(d){
+		var c1 = d[3 * righthandKeypoint + 1]
+		var c2 = d[3 * righthandKeypoint + 2]
+		return c1 >= threshold && c2 >= threshold
+	}).attr('opacity', 1)
+
 	d3.select('#righthand').select('#xaxis')
     	.call(xAxis)
     	.attr('transform', 'translate(0,' + height + ')')
@@ -312,6 +337,18 @@ function setup_lefthand(lefthandKeypoint, threshold){
 							}
 						})
 						.attr('r', 1)
+
+	lefthandSelection.filter(function(d){
+						var c1 = d[3 * lefthandKeypoint + 1]
+						var c2 = d[3 * lefthandKeypoint + 2]
+						return c1 < threshold || c2 < threshold
+					})
+					.attr('opacity', 0)
+	lefthandSelection.filter(function(d){
+		var c1 = d[3 * lefthandKeypoint + 1]
+		var c2 = d[3 * lefthandKeypoint + 2]
+		return c1 >= threshold && c2 >= threshold
+	}).attr('opacity', 1)
 
     d3.select('#lefthand').select('#xaxis')
     	.call(xAxis)
