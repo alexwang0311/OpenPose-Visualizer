@@ -119,13 +119,14 @@ function plot_it()  {
 
 var start = 0;
 var end = 3600;
+var thresholdScale = d3.scaleLinear()
+						.domain([0, filter_height])
+						.range([1, 0]);
 
 function setup_vis(){
 	setup_buttons();
-
-	setup_plot('pose', POSEKEYPOINT.NECK, 0, 0, pose_data.length);
-	setup_plot('lefthand', HANDKEYPOINT.PALM, 0, 0, hand_left_data.length);
-	setup_plot('righthand', HANDKEYPOINT.PALM, 0, 0, hand_right_data.length);
+	
+	setup_plots(0, 3600);
 
 	d3.select('#selectButtonPose').on('change', function(d){
 		var poseKeypoint = d3.select(this).property('value');
@@ -154,37 +155,33 @@ function setup_vis(){
 		.call(brush);
 
 	function zoom_plots(){
-		var threshold = thresholdScale(d3.select('#threshold').attr('y1'));
-		var poseKeypoint = d3.select('#selectButtonPose').property('value');
-		var righthandKeypoint = d3.select('#selectButtonRightHand').property('value');
-		var lefthandKeypoint = d3.select('#selectButtonLeftHand').property('value');
 		var interval = d3.event.selection;
 
-		var ticks = d3.select('#pose')
-						.select('#xaxis')
-						.selectAll('.tick')
-						.data();
-		console.log(width * ticks.length / 16, ticks[0], ticks[1]);
+		if(interval != null){
+			var ticks = d3.select('#pose')
+							.select('#xaxis')
+							.selectAll('.tick')
+							.data();
+			//console.log(width * ticks.length / 16, ticks[0], ticks[1]);
 
-		var xScale = d3.scalePoint()
-						.domain(ticks)
-						.range([0, width * ticks.length / 16]);
+			var xScale = d3.scalePoint()
+							.domain(ticks)
+							.range([0, width * ticks.length / 16]);
 
-		for(var i = 0; i < ticks.length - 1; ++i){
-			var cur = xScale(ticks[i]);
-			var next = xScale(ticks[i + 1]);
-			console.log(cur, next);
-			if(cur <= interval[0] && next >= interval[0]){
-				start = ticks[i + 1];
+			for(var i = 0; i < ticks.length - 1; ++i){
+				var cur = xScale(ticks[i]);
+				var next = xScale(ticks[i + 1]);
+				console.log(cur, next);
+				if(cur <= interval[0] && next >= interval[0]){
+					start = ticks[i + 1];
+				}
+				if(cur <= interval[1] && next >= interval[1]){
+					end = ticks[i];				
+				}
 			}
-			if(cur <= interval[1] && next >= interval[1]){
-				end = ticks[i];				
-			}
+			//console.log(start, end);
+			setup_plots(start, end);
 		}
-		console.log(start, end);
-		setup_plot('pose', poseKeypoint, threshold, start, end);
-		setup_plot('lefthand', lefthandKeypoint, threshold, start, end);
-		setup_plot('righthand', righthandKeypoint, threshold, start, end);
 
 		if(interval){
 			d3.select('#pose')
@@ -192,9 +189,21 @@ function setup_vis(){
 				.call(brush.move, null);
 		}
 	}
-	
 }
 
+function setup_plots(new_start, new_end){
+	start = new_start;
+	end = new_end;
+	var threshold = thresholdScale(d3.select('#threshold').attr('y1'));
+	console.log(threshold, start, end);
+	var poseKeypoint = d3.select('#selectButtonPose').property('value');
+	var righthandKeypoint = d3.select('#selectButtonRightHand').property('value');
+	var lefthandKeypoint = d3.select('#selectButtonLeftHand').property('value');
+
+	setup_plot('pose', poseKeypoint, threshold, start, end);
+	setup_plot('lefthand', lefthandKeypoint, threshold, start, end);
+	setup_plot('righthand', righthandKeypoint, threshold, start, end);
+}
 
 function setup_plot(plotType, keypointType, threshold, start, end){
 	var data;
@@ -264,7 +273,7 @@ function setup_plot(plotType, keypointType, threshold, start, end){
 						return yScale(d[3 * keypointType]);
 					}
 				})
-				.attr('r', 1)
+				.attr('r', 1.5)
 
 	selection.filter(function(d){
 						var c1 = d[3 * keypointType + 1];
@@ -327,21 +336,9 @@ function setup_buttons(){
 		.attr('value', function(d){return POSEKEYPOINT[d]});
 }
 
-var thresholdScale = d3.scaleLinear()
-							.domain([0, filter_height])
-							.range([1, 0]);
-
-
 function filter_data(){
 	function update_plots(){
-		var threshold = thresholdScale(d3.select('#threshold').attr('y1'));
-		var poseKeypoint = d3.select('#selectButtonPose').property('value');
-		var righthandKeypoint = d3.select('#selectButtonRightHand').property('value');
-		var lefthandKeypoint = d3.select('#selectButtonLeftHand').property('value');
-
-		setup_plot('pose', poseKeypoint, threshold, start, end);
-		setup_plot('lefthand', lefthandKeypoint, threshold, start, end);
-		setup_plot('righthand', righthandKeypoint, threshold, start, end);
+		setup_plots(start, end);
 	}
 
 
