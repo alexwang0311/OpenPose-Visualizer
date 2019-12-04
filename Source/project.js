@@ -59,25 +59,49 @@ var HANDKEYPOINT = {
 function plot_it()  {
 	d3.select('body')
 		.append('svg')
-		.attr('width', 1200)
+		.attr('width', 1300)
 		.attr('height', 1000)
-		.attr('transform', 'translate(5,5)')
+		.attr('transform', 'translate(5,5)');
 
-	// Group element for the filter
+	// Filter bar
 	d3.select('svg')
-		.append('rect')
-		.attr('height', filter_height)
-		.attr('width', 10)
+		.append('g')
 		.attr('id', 'filter')
-		.attr('fill', 'gray')
-		.attr('transform', 'translate(25, 300)')
+		.attr('transform', 'translate(35, 300)');
+	d3.select('#filter')
+		.append('g')
+		.attr('id', 'axis');
+	d3.select('#filter')
+		.append('g')
+		.attr('id', 'legends');
+
+	var scale = d3.scalePoint()
+					.domain([0, 0.25, 0.5, 0.75, 1])
+					.range([filter_height, 0]);
+	var axis = d3.axisLeft(scale);
+	d3.select('#filter')
+		.select('#axis')
+		.call(axis);
+	
+	var confidences = [0, 0.25, 0.5, 0.75, 1];
+	d3.select('#filter')
+		.select('#legends')
+		.selectAll('#colors')
+		.data(confidences)
+		.enter()
+		.append('rect')
+		.attr('height', filter_height / 4)
+		.attr('width', 20)
+		.attr('x', 0)
+		.attr('y', function(d){return scale(d) - filter_height / 4})
+		.attr('fill', function(d){return confidenceScale(d)});
 
 	// Threshold line
 	d3.select('svg').append('line').attr('id', 'threshold')
 		.attr('x1', 0).attr('x2', 30).attr('y1', filter_height).attr('y2', filter_height)
-		.attr('fill', 'None').attr('stroke', 'red').attr('stroke-width', 6).attr('opacity', 0.8)
-		.attr('transform', 'translate(15, 300)')
-		.raise()
+		.attr('fill', 'None').attr('stroke', 'black').attr('stroke-width', 6).attr('opacity', 0.8)
+		.attr('transform', 'translate(35, 300)')
+		.raise();
 
 	// Group elements for different plots
 	d3.select('svg')
@@ -96,19 +120,41 @@ function plot_it()  {
 		.attr('id', 'righthand');
 
 	// group that will contain y axis for left hand plot
-	d3.select('#lefthand').append('g').attr('id', 'yaxis')
+	d3.select('#lefthand').append('g').attr('id', 'yaxis');
 	// group that will contain x axis for right hand plot
-	d3.select('#lefthand').append('g').attr('id', 'xaxis')
+	d3.select('#lefthand').append('g').attr('id', 'xaxis');
+	// group that will contain the scatter plot
+	d3.select('#lefthand').append('g').attr('id', 'scatter');
 
 	// group that will contain y axis for right hand plot
-	d3.select('#righthand').append('g').attr('id', 'yaxis')
+	d3.select('#righthand').append('g').attr('id', 'yaxis');
 	// group that will contain x axis for right hand plot
-	d3.select('#righthand').append('g').attr('id', 'xaxis')
+	d3.select('#righthand').append('g').attr('id', 'xaxis');
+	// group that will contain the scatter plot
+	d3.select('#righthand').append('g').attr('id', 'scatter');
 
 	// group that will contain y axis for pose plot
-	d3.select('#pose').append('g').attr('id', 'yaxis')
+	d3.select('#pose').append('g').attr('id', 'yaxis');
 	// group that will contain x axis for pose plot
-	d3.select('#pose').append('g').attr('id', 'xaxis')
+	d3.select('#pose').append('g').attr('id', 'xaxis');
+	// group that will contain the scatter plot
+	d3.select('#pose').append('g').attr('id', 'scatter');
+
+	d3.select('#pose')
+		.append('text')
+		.attr('transform', 'translate(' + width + ',' + height / 2 + ')')
+		.text('pose')
+		.attr('font-size', '15px')
+	d3.select('#lefthand')
+		.append('text')
+		.attr('transform', 'translate(' + width + ',' + height / 2 + ')')
+		.text('lefthand')
+		.attr('font-size', '15px')
+	d3.select('#righthand')
+		.append('text')
+		.attr('transform', 'translate(' + width + ',' + height / 2 + ')')
+		.text('righthand')
+		.attr('font-size', '15px')
 
 	// plot labels
 	d3.select('#pose').append('text').text('OpenPose Visualizer')
@@ -122,6 +168,9 @@ var end = 3600;
 var thresholdScale = d3.scaleLinear()
 						.domain([0, filter_height])
 						.range([1, 0]);
+var confidenceScale = d3.scaleThreshold()
+							.domain([0.25, 0.5, 0.75, 1])
+							.range(['#d7191c', '#fdae61', '#984ea3', '#4daf4a', '#2b83ba']);
 
 function setup_vis(){
 	setup_buttons();
@@ -143,11 +192,14 @@ function setup_vis(){
 		var threshold = thresholdScale(d3.select('#threshold').attr('y1'));
 		setup_plot('righthand', righthandKeypoint, threshold, start, end);
 	});
+	d3.select('#reset').on('click', function(d){
+		setup_plots(0, 3600);
+	})
 
 	filter_data();
 	
 	var brush = d3.brushX()
-					.extent([[0, 0], [1078, 18]])
+					.extent([[0, -height], [1078, 2 * height + 180]])
 					.on('end', zoom_plots);
 
 	d3.select('#pose')
@@ -162,23 +214,12 @@ function setup_vis(){
 							.select('#xaxis')
 							.selectAll('.tick')
 							.data();
-			//console.log(width * ticks.length / 16, ticks[0], ticks[1]);
+			var xScale = d3.scaleLinear()
+							.domain([ticks[0], ticks[ticks.length - 1]])
+							.range([0, width]);
 
-			var xScale = d3.scalePoint()
-							.domain(ticks)
-							.range([0, width * ticks.length / 16]);
-
-			for(var i = 0; i < ticks.length - 1; ++i){
-				var cur = xScale(ticks[i]);
-				var next = xScale(ticks[i + 1]);
-				console.log(cur, next);
-				if(cur <= interval[0] && next >= interval[0]){
-					start = ticks[i + 1];
-				}
-				if(cur <= interval[1] && next >= interval[1]){
-					end = ticks[i];				
-				}
-			}
+			var start = Math.ceil(xScale.invert(interval[0]));
+			var end = Math.floor(xScale.invert(interval[1]));
 			//console.log(start, end);
 			setup_plots(start, end);
 		}
@@ -195,7 +236,7 @@ function setup_plots(new_start, new_end){
 	start = new_start;
 	end = new_end;
 	var threshold = thresholdScale(d3.select('#threshold').attr('y1'));
-	console.log(threshold, start, end);
+	//console.log(threshold, start, end);
 	var poseKeypoint = d3.select('#selectButtonPose').property('value');
 	var righthandKeypoint = d3.select('#selectButtonRightHand').property('value');
 	var lefthandKeypoint = d3.select('#selectButtonLeftHand').property('value');
@@ -219,25 +260,29 @@ function setup_plot(plotType, keypointType, threshold, start, end){
 	else{
 		throw 'unknown plotType';
 	}
+	//console.log(data.length);
 
 	data = data.slice(start, end + 1);
 	//console.log(data);
 
 	// xScale and xAxis
-	var xScale = d3.scalePoint()
-					.domain(data.map(function(e, index){return start + index;}))
-					.range([0, width])
-	var step = Math.ceil((end - start) / 15);
-	//console.log(step);
+	var xScale = d3.scaleLinear()
+					.domain([start, end])
+					.range([0, width]);
 	var xAxis = d3.axisBottom(xScale)
-					.tickValues(d3.range(start, end, step));
+					.ticks(15);
 
 	// yScale and yAxis
 	var filtered_data = data.filter(function(d){
 		//console.log(3 * keypointType + 1);
-		var c1 = d[3 * keypointType + 1];
-		var c2 = d[3 * keypointType + 2];
-		return c1 >= threshold && c2 >= threshold;
+		if(d.length > 0){
+			var c1 = d[3 * keypointType + 1];
+			var c2 = d[3 * keypointType + 2];
+			return c1 >= threshold && c2 >= threshold;
+		}
+		else{
+			return false;
+		}
 	})
 
 	var max = d3.max(filtered_data, d => d[3 * keypointType]);
@@ -251,11 +296,14 @@ function setup_plot(plotType, keypointType, threshold, start, end){
 
 	var yAxis = d3.axisLeft(yScale);
 
+	//console.log(confidenceScale(0.3));
+
 	var selection = d3.select('#' + plotType)
+						.select('#scatter')
 						.selectAll('.' + plotType + '_plot')
 						.data(data);
 
-	selection.exit().remove()
+	selection.exit().remove();
 
 	selection.enter()
 				.append('circle')
@@ -273,21 +321,49 @@ function setup_plot(plotType, keypointType, threshold, start, end){
 						return yScale(d[3 * keypointType]);
 					}
 				})
-				.attr('r', 1.5)
+				.attr('fill', function(d){
+					if(d.length != 0){
+						//console.log(confidenceScale((d[3 * keypointType + 1] + d[3 * keypointType + 2]) / 2));
+						return confidenceScale((d[3 * keypointType + 1] + d[3 * keypointType + 2]) / 2);
+					}
+					else{
+						return confidenceScale(0);
+					}
+				})
+				.attr('r', 2);
 
-	selection.filter(function(d){
-						var c1 = d[3 * keypointType + 1];
-						var c2 = d[3 * keypointType + 2];
-						return c1 < threshold || c2 < threshold;
-					})
-					.attr('opacity', 0)
+	var garbage = d3.select('#' + plotType)
+					.select('#scatter')
+					.selectAll('.' + plotType + '_plot')
+					.filter(function(d){
+						if(d.length > 0){
+							//console.log(plotType, d.length);
+							var c1 = d[3 * keypointType + 1];
+							var c2 = d[3 * keypointType + 2];
+							//return c1 < threshold || c2 < threshold;
+							return (c1 + c2) / 2 < threshold;
+						}else{
+							//console.log(plotType, d.length);
+							return true;
+						}	
+					}).style('opacity', 0);
+	//console.log(plotType, garbage);
 
-	selection.filter(function(d){
-		var c1 = d[3 * keypointType + 1];
-		var c2 = d[3 * keypointType + 2];
-		return c1 >= threshold && c2 >= threshold;
-	}).attr('opacity', 1);
-
+	var good = d3.select('#' + plotType)
+					.select('#scatter')
+					.selectAll('.' + plotType + '_plot')
+					.filter(function(d){
+						if(d.length > 0){
+							//console.log(plotType, d.length);
+							var c1 = d[3 * keypointType + 1];
+							var c2 = d[3 * keypointType + 2];
+							//return c1 < threshold || c2 < threshold;
+							return (c1 + c2) / 2 >= threshold;
+						}else{
+							//console.log(plotType, d.length);
+							return false;
+						}	
+					}).style('opacity', 1);
 
 	d3.select('#' + plotType)
 		.select('#xaxis')

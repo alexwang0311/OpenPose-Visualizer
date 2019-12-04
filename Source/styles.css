@@ -1,4 +1,4 @@
-select{
+select {
 	background-color: #222222;
 	color: white;
 	text-indent: 6px;
@@ -7,6 +7,6 @@ select{
 	border: none;
 }
 
-text{
+text {
 	font-family: courier;
 }
