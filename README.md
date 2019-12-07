@@ -24,11 +24,11 @@ Using *OpenPose*, we are able to identify and record the positions of various ke
 
 ### Overview
 The *OpenPose Visualizer* used **[d3.js](https://d3js.org/)** to visualize and interact with the data.
-File [`Documents`](/Documents) includes the proposal, process book and other related document files of the project; [`Data`](/Data) includes the raw data as well as the processed data used in this project; [`Python`](/Python) includes the python script used for the processing; [`Source`](/Source) contains all of the project code. [`Images`](/Images) contains some of the sample images used in this document.
+File [`Documents`](/Documents) includes the proposal, process book of the project; [`Data`](/Data) includes the raw data as well as the processed data used in this project; [`Python`](/Python) includes the python script used for the processing; [`Source`](/Source) contains all of the project code. [`Images`](/Images) contains some of the sample images used in this document.
 
 
 ### Setup
-To run the project, clone the project repository to your local machine and run `python -m SimpleHTTPServer` in the terminal in the root directory of the project. Then, go to the following url: [http://localhost:8000/](http://localhost:8000/) in your browser to see the project contents.
+To run the project, clone the project repository to your local machine and run `python -m SimpleHTTPServer` in the terminal in the root directory of the project. Then, go to the following url: [http://localhost:8000/](http://localhost:8000/Source) in your browser to see the project contents.
 
 ---
 
