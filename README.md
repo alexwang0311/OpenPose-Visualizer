@@ -66,5 +66,5 @@ Finished implementing the *brush-and-zoom* and *color-coded* each data point bas
 
 ---
 
-### Feedback and Evaluations
+### Evaluations
 
