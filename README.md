@@ -23,7 +23,7 @@ Using *OpenPose*, we are able to identify and record the positions of various ke
 
 ### Overview
 The *OpenPose Visualizer* used **[d3.js](https://d3js.org/)** to visualize and interact with the data.
-File [`Documents`](/Documents) includes the proposal, process book and other related document files of the project; [`Data`](/Data) includes the raw data as well as the processed data used in this project. It also includes the python script used for the processing; [`Source`](/Source) contains all of the project code.
+File [`Documents`](/Documents) includes the proposal, process book and other related document files of the project; [`Data`](/Data) includes the raw data as well as the processed data used in this project; [`Python`](/Python) includes the python script used for the processing; [`Source`](/Source) contains all of the project code.
 
 
 ### Setup
@@ -63,8 +63,20 @@ Finished implementing the *filter bar* and the *dropdown menus*. Added *coordina
 Finished implementing the *brush-and-zoom* and *color-coded* each data point based on its overall confidence level. Added *reset view* button that zooms out the plots to its original view while *retaining* the threshold confidence level. Added *color legends* and *axis* for the filter bar. Added *labels* to each plot.
 
 ### Final product
-
----
+#### Effective use of visual channels:
+##### 1. Color
+Using a threshold scale, data points with different range of overall confidence level will be colored accordingly. Furthermore, since the threshold was implemented with a diverging color range, data points with low confidence level will be easily distinguished from those with high confidence level. Therefore, at a first glance, the user will receive constructive visual feedbacks on the validity of the data of the keypoint selected.
+##### 2. Spatial position
+By mapping each data point to a specific position on a 2D plane, the user will be able to see the relationship between the movement trace and the frame number, making the process of observing potential patterns more straightforward. Furthermore, it also makes it easier for the user to observe the range of the data points, i.e. the maximum and minimum value over a specific amount of frames.
+##### 3. Interaction
+###### a. Drag and filter
+By dragging the threshold line, the user can easily filter out data whose confidence level is below the selected threshold value. This will allow the visualization to become more effective since it will eliminate outliers that stretch out the scale and reconstruct a more accurate representation of the remaining data points.
+###### b. Brush and zoom
+Since there are about 3600 frames, it is hard to see a specific area of the distribution of the data points. Therefore, having a way to interactively modify the view is necessary to obtain a more detailed information on the data. By brushing along the x-axis, the user will be able to zoom in on the plot around the selected frames and the plot will be rescaled accordingly.
+###### c. Multiple and coordinated views
+By having a coordinated view between the three plots, it is easier for the user to observe the relationship between different body parts.
 
 ### Evaluations
+
+---
 
