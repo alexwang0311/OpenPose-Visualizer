@@ -79,23 +79,23 @@ By having a coordinated view between the three plots, it is easier for the user 
 
 
 ### Demo
-1. Visual feedback
+- 1. Visual feedback
 When the user selects palm as the keypoint for the lefthand plot, the majority of the data points are red, meaning that they are low in confidence level. Therefore the user knows to select a different keypoint to plot.
-![color-feedback](Images/color-feedbacks.png).
-2. Diverging color scale
+![color-feedback](Images/color-feedbacks.png)
+- 2. Diverging color scale
 Data points with high confidence levels have a very different hue than those with low confidence levels. Therefore the user can easily distinguish between them. As seen below, when the user chooses the tip of the middle finger as the keypoint for the lefthand plot, there are more points with higher confidence levels. 
-![better-data](Images/color-better.png).
-3. Filter data
+![better-data](Images/color-better.png)
+- 3. Filter data
 By dragging the threshold line, the user will be able to filter out data points whose confidence level is below the threshold line and have a better view of the remaining points as the plots rescale.
 ![filter-data](Images/filter-data.png).
-4. Brush and zoom
+- 4. Brush and zoom
 The user can brush along the x-axis to restrict the view around a certain number of frames to get a more detailed view.
 ![brush](Images/brush.png)
 Below is the area where the epilepsy occured in the video. As seen in the visualization, the pose plot displays a rather stable movement of the keypoint (keypoint bounces between 0 and 2 for most of the frames which means it was barely moving). Whereas the distribution of the lefthand keypoint is rather chaotic. This could result from the fact that when the patient was having the epilepsy episode, his hands were twitching but the rest of his body was still. 
 ![zoom](Images/zoom.png)
-5. Pattern
+- 5. Pattern
 Zooming out the plots back to their original views, we can see that there are three areas that contain such pattern. If we can see such pattern occurring on other epilepsy patients, we should be able to train a neural network to recognize it.
-![pattern](Images/pattern.png).
+![pattern](Images/pattern.png)
 
 ---
 
