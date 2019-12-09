@@ -8,7 +8,7 @@
 - [Description](#description)
 - [Overview](#overview)
 - [Setup](#setup)
-- [Process Book](#process-book)
+- [Contents](#contents)
     - [Motivation and Goals](#motivation-and-goals)
     - [Initial Data Analysis](#initial-data-analysis)
     - [Data Cleaning Process](#data-cleaning-process)
@@ -32,7 +32,7 @@ To run the project, clone the project repository to your local machine and run `
 
 ---
 
-## Process Book
+## Contents
 
 ### Motivation and Goals
 As mentioned above, the motivation of the *OpenPose Visualizer Project* is to build a visualization tool for constructing a proof-of-concept for designing an autonomous system that monitors the movements of epilepsy patients and uses machine learning algorithms to predict the onset of a potential epilepsy episode. We want the visualization to help us gain a better understanding of the following questions:
