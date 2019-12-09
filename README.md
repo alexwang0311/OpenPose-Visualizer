@@ -1,5 +1,5 @@
 ## OpenPose-Visualizer
-> Vanderbilt *CS3891* *Introduction to Visualization* Final Project, fall 2019
+> Vanderbilt *CS3891* *Introduction to Visualization* Final Project, Fall 2019
 > 
 > I would like to thank Professor *Matthew Berger* and Professor *Benoit Dawant* for their help and guidance on this project
 > 
