@@ -24,7 +24,7 @@ Using *OpenPose*, we are able to identify and record the positions of various ke
 
 ### Overview
 The *OpenPose Visualizer* used **[d3.js](https://d3js.org/)** to visualize and interact with the data.
-File [`Documents`](/Documents) includes the proposal, process book of the project; [`Data`](/Data) includes the raw data as well as the processed data used in this project; [`Python`](/Python) includes the python script used for the processing; [`Source`](/Source) contains all of the project code. [`Images`](/Images) contains some of the sample images used in this document.
+File [`Documents`](/Documents) includes the proposal and the process book of the project; [`Data`](/Data) includes the raw data as well as the processed data used in this project; [`Python`](/Python) includes the python script used for the processing; [`Source`](/Source) contains all of the project code. [`Images`](/Images) contains some of the sample images used in this document.
 
 
 ### Setup
